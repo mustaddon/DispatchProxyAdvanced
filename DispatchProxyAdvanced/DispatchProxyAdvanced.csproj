@@ -15,8 +15,8 @@
 		<PackageId>DispatchProxyAdvanced</PackageId>
 		<Product>DispatchProxyAdvanced</Product>
 		<Title>DispatchProxyAdvanced</Title>
-		<Description>DispatchProxy Advanced</Description>
-		<PackageTags>dispatchproxy dispatch-proxy proxy-factory proxy-object proxy-class proxy-interface</PackageTags>
+		<Description>Extended version of DispatchProxy with Class proxying</Description>
+		<PackageTags>dispatchproxy dispatch-proxy proxy-factory proxy-object proxy-class proxy-interface proxy-handler</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/mustaddon/DispatchProxyAdvanced</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mustaddon/DispatchProxyAdvanced</RepositoryUrl>
@@ -33,7 +33,7 @@
 				 Link="Common\System\Reflection\Emit\IgnoreAccessChecksToAttributeBuilder.cs" />
 	</ItemGroup>-->
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
