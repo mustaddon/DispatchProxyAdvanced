@@ -28,11 +28,6 @@
 		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
 	</PropertyGroup>
 
-	<!--<ItemGroup>
-		<Compile Include="$(CommonPath)System\Reflection\Emit\IgnoreAccessChecksToAttributeBuilder.cs"
-				 Link="Common\System\Reflection\Emit\IgnoreAccessChecksToAttributeBuilder.cs" />
-	</ItemGroup>-->
-
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />

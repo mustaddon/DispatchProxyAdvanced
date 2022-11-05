@@ -96,7 +96,7 @@ namespace System.Reflection.Emit
             attributeTypeBuilder.SetCustomAttribute(customAttributeBuilder);
 
             // Make the TypeInfo real so the constructor can be used.
-            return attributeTypeBuilder.CreateTypeInfo().DeclaredConstructors.Single();
+            return attributeTypeBuilder.CreateTypeInfo()!.DeclaredConstructors.Single();
         }
     }
 }
