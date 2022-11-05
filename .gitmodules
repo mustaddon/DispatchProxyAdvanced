@@ -1,4 +1,4 @@
 [submodule "_ref"]
 	path = _ref
-	url = https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/System/Reflection/Emit/IgnoreAccessChecksToAttributeBuilder.cs.git
+	url = https://github.com/dotnet/runtime/blob/main/src/libraries/Common/src/System/Reflection/Emit.git
 	ignore = d
