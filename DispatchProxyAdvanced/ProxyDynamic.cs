@@ -19,9 +19,7 @@ public static class ProxyDynamic
         var methods = type.GetMethods(flags).AsEnumerable();
 
         if (type.IsInterface)
-            methods = methods
-                .Concat(type.GetInterfaces().SelectMany(x => x.GetMethods(flags)))
-                .Distinct();
+            methods = methods.Concat(type.GetInterfaces().SelectMany(x => x.GetMethods(flags)));
 
         return methods.Where(x => x.IsVirtual && !x.IsFinal).Distinct().ToArray();
     }

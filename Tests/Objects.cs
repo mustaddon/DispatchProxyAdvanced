@@ -25,6 +25,9 @@ class Test : ITest
     public virtual int Prop1 { get; set; }
     public virtual void Method0() { }
     public virtual int Method1(int a) => a;
+
+    public virtual event EventHandler? Event1;
+    public virtual void RiseEvent(EventArgs args) { Event1?.Invoke(this, args); }
 }
 
 class Test<T> : Test, ITest<T>

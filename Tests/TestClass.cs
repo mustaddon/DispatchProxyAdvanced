@@ -134,16 +134,18 @@ public class TestClass
     [Test]
     public void TestMethod3_val()
     {
-        var num = Utils.Random.Next();
+        var a = Utils.Random.Next();
+        var b = Utils.Random.Next().ToString();
 
         var proxy = ProxyFactory.Create<Test<int>>((method, args) =>
         {
             Assert.That(method.GetGenericArguments(), Is.EqualTo(new[] { typeof(int?), typeof(string) }));
+            Assert.That(args, Is.EqualTo(new object?[] { a, b }));
             Assert.That(args.Length, Is.EqualTo(2));
             return args.FirstOrDefault();
         });
 
-        Assert.That(proxy.Method3<int?, string>(num, num.ToString()), Is.EqualTo(num));
+        Assert.That(proxy.Method3<int?, string>(a, b), Is.EqualTo(a));
     }
 
 
@@ -176,5 +178,74 @@ public class TestClass
         });
 
         Assert.That(proxy.Method3(num, num), Is.EqualTo(num));
+    }
+
+
+    [Test]
+    public void TestEvent1_add_rise_remove()
+    {
+        var num = Utils.Random.Next();
+        var inst = new Test(num);
+        var eArgs = new EventArgs();
+        var eAdded = false;
+        var eRemoved = false;
+        var eRised = false;
+        var eFired = false;
+
+        EventHandler eHandler = (s, e) =>
+        {
+            eFired = true;
+            Assert.That(s, Is.EqualTo(inst));
+            Assert.That(e, Is.EqualTo(eArgs));
+        };
+
+        var proxy = ProxyFactory.Create<Test>((method, args) =>
+        {
+            if (method.Name == $"add_{nameof(Test.Event1)}")
+            {
+                eAdded = true;
+                Assert.That(args, Is.EqualTo(new[] { eHandler }));
+            }
+            else if (method.Name == $"remove_{nameof(Test.Event1)}")
+            {
+                eRemoved = true;
+                Assert.That(args, Is.EqualTo(new[] { eHandler }));
+            }
+            else if (method.Name == nameof(Test.RiseEvent))
+            {
+                eRised = true;
+                Assert.That(args, Is.EqualTo(new[] { eArgs }));
+            }
+
+            return method.Invoke(inst, args);
+        });
+
+        Assert.That(eAdded, Is.False);
+        Assert.That(eFired, Is.False);
+
+        proxy.Event1 += eHandler;
+
+        Assert.That(eAdded, Is.True);
+        Assert.That(eRised, Is.False);
+        Assert.That(eFired, Is.False);
+
+        proxy.RiseEvent(eArgs);
+
+        Assert.That(eRised, Is.True);
+        Assert.That(eFired, Is.True);
+        Assert.That(eRemoved, Is.False);
+
+        eFired = false;
+
+        proxy.Event1 -= eHandler;
+
+        Assert.That(eRemoved, Is.True);
+        Assert.That(eFired, Is.False);
+
+        proxy.RiseEvent(eArgs);
+
+        Assert.That(eFired, Is.False);
+
+        //Assert.That(proxy.Method3(num, num), Is.EqualTo(num));
     }
 }
