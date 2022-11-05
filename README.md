@@ -1,4 +1,4 @@
-# DispatchProxyAdvanced [![NuGet version](https://badge.fury.io/nu/DispatchProxyAdvanced.svg)](http://badge.fury.io/nu/DispatchProxyAdvanced)
+# DispatchProxyAdvanced [![NuGet version](https://badge.fury.io/nu/DispatchProxyAdvanced.svg?)](http://badge.fury.io/nu/DispatchProxyAdvanced)
 Extended version of DispatchProxy with Class proxying
 
 
@@ -56,7 +56,7 @@ proxy2.MyMethod(20, 200);
 // Invoke: MyMethod, Args: 20, 200
 ```
 
-## Example 2: Abstract Class proxing targetless
+## Example 3: Abstract Class proxing targetless
 ```C#
 abstract class ExampleAbstractClass
 {
