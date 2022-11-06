@@ -15,9 +15,9 @@ interface ITest<T> : ITest
     public TA Method3<TA, TB>(TA a, TB b);
 }
 
-class Test : ITest
+class TestClass : ITest
 {
-    public Test(int prop1)
+    public TestClass(int prop1)
     {
         Prop1 = prop1;
     }
@@ -30,9 +30,9 @@ class Test : ITest
     public virtual void RiseEvent(EventArgs args) { Event1?.Invoke(this, args); }
 }
 
-class Test<T> : Test, ITest<T>
+class TestClass<T> : TestClass, ITest<T>
 {
-    public Test(int prop1, T prop2) 
+    public TestClass(int prop1, T prop2) 
         : base(prop1)
     {
         Prop2 = prop2;

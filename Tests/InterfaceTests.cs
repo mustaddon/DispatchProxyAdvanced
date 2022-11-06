@@ -1,6 +1,6 @@
 namespace Tests;
 
-public class TestInterface
+public class InterfaceTests
 {
     [Test]
     public void TestGetProp1_val()

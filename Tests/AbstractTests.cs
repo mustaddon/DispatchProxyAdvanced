@@ -1,6 +1,6 @@
 namespace Tests;
 
-public class TestAbstract
+public class AbstractTests
 {
     [Test]
     public void TestGetProp1_val()
