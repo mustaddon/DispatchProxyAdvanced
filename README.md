@@ -32,7 +32,7 @@ Console.WriteLine($"MethodResult: {proxy1.MyMethod(10, 100)}");
 // MethodResult: 1000
 ```
 
-## Example 2: Interface proxing targetless
+## Example 2: Interface proxing
 ```C#
 interface IExampleInterface
 {
@@ -54,28 +54,4 @@ proxy2.MyMethod(20, 200);
 // Console output: 
 // Invoke: set_MyProp, Args: 222
 // Invoke: MyMethod, Args: 20, 200
-```
-
-## Example 3: Abstract Class proxing targetless
-```C#
-abstract class ExampleAbstractClass
-{
-    public abstract int MyProp { get; set; }
-    public virtual int MyMethod(int a, int b) => a * b;
-}
-```
-
-```C#
-var proxy3 = ProxyFactory.Create<ExampleAbstractClass>((method, args) =>
-{
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}");
-    return args.FirstOrDefault();
-});
-
-proxy3.MyProp = 333;
-proxy3.MyMethod(30, 300);
-
-// Console output: 
-// Invoke: set_MyProp, Args: 333
-// Invoke: MyMethod, Args: 30, 300
 ```
