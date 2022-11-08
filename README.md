@@ -17,19 +17,18 @@ var instanceTarget = new ExampleClass { MyProp = 111 };
 
 var proxy1 = ProxyFactory.Create<ExampleClass>((method, args) =>
 {
-    var result = method.Invoke(instanceTarget, args);
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}, Result: {result}");
-    return result;
+    Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
+    return method.Invoke(instanceTarget, args);
 });
 
-Console.WriteLine($"PropValue: {proxy1.MyProp}");
-Console.WriteLine($"MethodResult: {proxy1.MyMethod(10, 100)}");
+Console.WriteLine($"Property value: {proxy1.MyProp}");
+Console.WriteLine($"Method result: {proxy1.MyMethod(10, 100)}");
 
 // Console output: 
-// Invoke: get_MyProp, Args: , Result: 111
-// PropValue: 111
-// Invoke: MyMethod, Args: 10, 100, Result: 1000
-// MethodResult: 1000
+// Executing method: get_MyProp, with args:
+// Property value: 111
+// Executing method: MyMethod, with args: 10, 100
+// Method result: 1000
 ```
 
 ## Example 2: Interface proxing
@@ -44,7 +43,7 @@ interface IExampleInterface
 ```C#
 var proxy2 = ProxyFactory.Create<IExampleInterface>((method, args) =>
 {
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}");
+    Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
     return args.FirstOrDefault();
 });
 
@@ -52,6 +51,6 @@ proxy2.MyProp = 222;
 proxy2.MyMethod(20, 200);
 
 // Console output: 
-// Invoke: set_MyProp, Args: 222
-// Invoke: MyMethod, Args: 20, 200
+// Executing method: set_MyProp, with args: 222
+// Executing method: MyMethod, with args: 20, 200
 ```

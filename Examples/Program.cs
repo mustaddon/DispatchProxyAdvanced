@@ -8,13 +8,12 @@ var instanceTarget = new ExampleClass { MyProp = 111 };
 
 var proxy1 = ProxyFactory.Create<ExampleClass>((method, args) =>
 {
-    var result = method.Invoke(instanceTarget, args);
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}, Result: {result}");
-    return result;
+    Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
+    return method.Invoke(instanceTarget, args);
 });
 
-Console.WriteLine($"PropValue: {proxy1.MyProp}");
-Console.WriteLine($"MethodResult: {proxy1.MyMethod(10, 100)}");
+Console.WriteLine($"Property value: {proxy1.MyProp}");
+Console.WriteLine($"Method result: {proxy1.MyMethod(10, 100)}");
 
 
 
@@ -22,7 +21,7 @@ Console.WriteLine("\n=== Example 2 ===");
 
 var proxy2 = ProxyFactory.Create<IExampleInterface>((method, args) =>
 {
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}");
+    Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
     return args.FirstOrDefault();
 });
 
@@ -35,7 +34,7 @@ Console.WriteLine("\n=== Example 3 ===");
 
 var proxy3 = ProxyFactory.Create<ExampleAbstractClass>((method, args) =>
 {
-    Console.WriteLine($"Invoke: {method.Name}, Args: {string.Join(", ", args)}");
+    Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
     return args.FirstOrDefault();
 });
 
