@@ -7,9 +7,9 @@ internal class InterfacedProxy : DispatchProxy
     public static object Create(Type type, ProxyHandler handler)
     {
         var proxy = (InterfacedProxy)CreateMethod
-            .MakeGenericMethod(type, typeof(InterfacedProxy))
-            .Invoke(null, Array.Empty<object>())!;
-
+            .MakeGenericMethod(type, _interfacedProxy)
+            .Invoke(null, null)!;
+            
         proxy._handler = handler;
         return proxy;
     }
@@ -19,6 +19,8 @@ internal class InterfacedProxy : DispatchProxy
     protected override object? Invoke(MethodInfo? targetMethod, object?[]? args) 
         => _handler!.Invoke(targetMethod!, args!)!;
 
-    private static readonly MethodInfo CreateMethod = typeof(DispatchProxy)
-        .GetMethod(nameof(DispatchProxy.Create), BindingFlags.Public | BindingFlags.Static)!;
+    private static readonly MethodInfo CreateMethod = new Func<object>(Create<object, InterfacedProxy>)
+        .Method.GetGenericMethodDefinition();
+
+    private static readonly Type _interfacedProxy = typeof(InterfacedProxy);
 }

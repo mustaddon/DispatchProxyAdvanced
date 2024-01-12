@@ -54,3 +54,5 @@ proxy2.MyMethod(20, 200);
 // Executing method: set_MyProp, with args: 222
 // Executing method: MyMethod, with args: 20, 200
 ```
+
+[Program.cs](https://github.com/mustaddon/DispatchProxyAdvanced/tree/master/Examples/Program.cs)

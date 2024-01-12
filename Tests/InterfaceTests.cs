@@ -6,7 +6,7 @@ public class InterfaceTests
     public void TestGetProp1_val()
     {
         var num = Utils.Random.Next();
-        
+
         var proxy = ProxyFactory.Create<ITest>((method, args) =>
         {
             Assert.That(method, Is.EqualTo(typeof(ITest).GetProperty(nameof(ITest.Prop1))!.GetGetMethod()));
