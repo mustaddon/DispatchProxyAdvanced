@@ -8,91 +8,137 @@ public class ClassTests
     public void TestGetProp1_val()
     {
         var num = Utils.Random.Next();
+        var source = new TestClass(num);
 
         var proxy = ProxyFactory.Create<TestClass>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass).GetProperty(nameof(TestClass.Prop1))!.GetGetMethod()));
-            return num;
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass).GetProperty(nameof(TestClass.Prop1))!.GetGetMethod()));
+
+            return method.Invoke(source, args);
         });
 
-        Assert.That(proxy.Prop1, Is.EqualTo(num));
+        Assert.That(proxy.Prop1, 
+            Is.EqualTo(source.Prop1));
     }
 
     [Test]
     public void TestSetProp1_val()
     {
         var num = Utils.Random.Next();
+        var source = new TestClass(num);
 
         var proxy = ProxyFactory.Create<TestClass>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass).GetProperty(nameof(TestClass.Prop1))!.GetSetMethod()));
-            Assert.That(args.Length, Is.EqualTo(1));
-            Assert.That(args.FirstOrDefault(), Is.EqualTo(num));
-            return args.FirstOrDefault();
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass).GetProperty(nameof(TestClass.Prop1))!.GetSetMethod()));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(1));
+
+            Assert.That(args.FirstOrDefault(), 
+                Is.EqualTo(num));
+
+            return method.Invoke(source, args);
         });
 
         proxy.Prop1 = num;
+
+        Assert.That(source.Prop1,
+            Is.EqualTo(num));
     }
 
     [Test]
     public void TestGetProp2_ref()
     {
-        var num = Utils.Random.Next().ToString();
+        var num = Utils.Random.Next();
+        var source = new TestClass<string>(num, num.ToString());
 
         var proxy = ProxyFactory.Create<TestClass<string>>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass<string>).GetProperty(nameof(TestClass<string>.Prop2))!.GetGetMethod()));
-            Assert.That(args.Length, Is.EqualTo(0));
-            return num;
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass<string>).GetProperty(nameof(TestClass<string>.Prop2))!.GetGetMethod()));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(0));
+
+            return method.Invoke(source, args);
         });
 
-        Assert.That(proxy.Prop2, Is.EqualTo(num));
+        Assert.That(proxy.Prop2, 
+            Is.EqualTo(source.Prop2));
     }
 
     [Test]
     public void TestSetProp2_ref()
     {
-        var num = Utils.Random.Next().ToString();
+        var num = Utils.Random.Next();
+        var source = new TestClass<string>(num, string.Empty);
 
         var proxy = ProxyFactory.Create<TestClass<string>>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass<string>).GetProperty(nameof(TestClass<string>.Prop2))!.GetSetMethod()));
-            Assert.That(args.Length, Is.EqualTo(1));
-            Assert.That(args.FirstOrDefault(), Is.EqualTo(num));
-            return args.FirstOrDefault();
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass<string>).GetProperty(nameof(TestClass<string>.Prop2))!.GetSetMethod()));
+
+            return method.Invoke(source, args);
         });
 
-        proxy.Prop2 = num;
+        Assert.That(source.Prop2,
+            Is.EqualTo(string.Empty));
+
+        proxy.Prop2 = num.ToString();
+
+        Assert.That(source.Prop2,
+            Is.EqualTo(num.ToString()));
     }
 
     [Test]
     public void TestSetProp2_obj()
     {
         var num = (object)Utils.Random.Next();
+        var source = new TestClass<object>(0, null);
 
         var proxy = ProxyFactory.Create<TestClass<object>>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass<object>).GetProperty(nameof(TestClass<object>.Prop2))!.GetSetMethod()));
-            Assert.That(args.Length, Is.EqualTo(1));
-            Assert.That(args.FirstOrDefault(), Is.EqualTo(num));
-            return args.FirstOrDefault();
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass<object>).GetProperty(nameof(TestClass<object>.Prop2))!.GetSetMethod()));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(1));
+
+            Assert.That(args.FirstOrDefault(), 
+                Is.EqualTo(num));
+
+            return method.Invoke(source, args);
         });
 
+        Assert.That(source.Prop2,
+            Is.Null);
+
         proxy.Prop2 = num;
+
+        Assert.That(source.Prop2,
+            Is.EqualTo(num));
     }
 
     [Test]
     public void TestMethod0_void()
     {
         var num = Utils.Random.Next();
+        var source = new TestClass(num);
         var run = false;
 
         var proxy = ProxyFactory.Create<TestClass>((method, args) =>
         {
             run = true;
-            Assert.That(method, Is.EqualTo(typeof(TestClass).GetMethod(nameof(TestClass.Method0))));
-            Assert.That(args.Length, Is.EqualTo(0));
-            return null;
+
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass).GetMethod(nameof(TestClass.Method0))));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(0));
+
+            return method.Invoke(source, args);
         });
 
         proxy.Method0();
@@ -104,30 +150,41 @@ public class ClassTests
     public void TestMethod1_val()
     {
         var num = Utils.Random.Next();
+        var source = new TestClass(num);
 
         var proxy = ProxyFactory.Create<TestClass>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass).GetMethod(nameof(TestClass.Method1))));
-            Assert.That(args.Length, Is.EqualTo(1));
-            return args.FirstOrDefault();
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass).GetMethod(nameof(TestClass.Method1))));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(1));
+
+            return method.Invoke(source, args);
         });
 
-        Assert.That(proxy.Method1(num), Is.EqualTo(num));
+        Assert.That(proxy.Method1(num), 
+            Is.EqualTo(source.Method1(num)));
     }
 
     [Test]
     public void TestMethod2_val()
     {
         var num = Utils.Random.Next();
+        var source = new TestClass<int>(num, num-1);
 
         var proxy = ProxyFactory.Create<TestClass<int>>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(TestClass<int>).GetMethod(nameof(TestClass<int>.Method2))));
-            Assert.That(args.Length, Is.EqualTo(1));
-            return args.FirstOrDefault();
+            Assert.That(method, 
+                Is.EqualTo(typeof(TestClass<int>).GetMethod(nameof(TestClass<int>.Method2))));
+
+            Assert.That(args.Length, 
+                Is.EqualTo(1));
+
+            return method.Invoke(source, args);
         });
 
-        Assert.That(proxy.Method2(num), Is.EqualTo(num));
+        Assert.That(proxy.Method2(num), Is.EqualTo(source.Method2(num)));
     }
 
 
@@ -172,8 +229,11 @@ public class ClassTests
 
         var proxy = ProxyFactory.Create<TestClass<int>>((method, args) =>
         {
-            Assert.That(method.GetGenericArguments(), Is.EqualTo(new[] { typeof(object), typeof(object) }));
+            Assert.That(method.GetGenericArguments(), 
+                Is.EqualTo(new[] { typeof(object), typeof(object) }));
+
             Assert.That(args.Length, Is.EqualTo(2));
+
             return args.FirstOrDefault();
         });
 

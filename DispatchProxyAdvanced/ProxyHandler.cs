@@ -2,4 +2,4 @@
 namespace DispatchProxyAdvanced;
 
 
-public delegate object? ProxyHandler(MethodInfo method, object?[] args);
+public delegate object? ProxyHandler(IProxy proxy, MethodInfo method, object?[] args);

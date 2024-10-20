@@ -1,55 +1,63 @@
-﻿using DispatchProxyAdvanced.Dynamic;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-namespace DispatchProxyAdvanced;
+namespace DispatchProxyAdvanced._internal;
 
 internal static class TypeBuilderExtensions
 {
     public static TypeBuilder AddFields(this TypeBuilder typeBuilder, out FieldInfo[] fields)
     {
-        fields = new FieldInfo[2];
+        fields = new FieldInfo[3];
 
-        fields[(int)ProxyFields.Handler] = typeBuilder.DefineField("_handler",
-            _proxyHandlerType, FieldAttributes.Private);
+        fields[ProxyFields.Handler] = typeBuilder.DefineField("_handler",
+            _proxyHandlerType, FieldAttributes.Private | FieldAttributes.InitOnly);
 
-        fields[(int)ProxyFields.Methods] = typeBuilder.DefineField("_methodInfos",
-            _methodInfoArrayType, FieldAttributes.Private);
+        fields[ProxyFields.Methods] = typeBuilder.DefineField("_methodInfos",
+            _methodInfoArrayType, FieldAttributes.Private | FieldAttributes.InitOnly);
+
+        fields[ProxyFields.State] = typeBuilder.DefineField("_state",
+            _objectType, FieldAttributes.Private);
 
         return typeBuilder;
     }
 
-    public static TypeBuilder AddConstructor(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields)
+
+    public static TypeBuilder AddConstructor(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields, CustomAttributeBuilder[] handlerAttributes)
     {
         var handlerCtor = typeBuilder.DefineConstructor(MethodAttributes.Public,
             CallingConventions.HasThis,
             CtorArgs);
 
+        var paramBuilder = handlerCtor.DefineParameter(1, ParameterAttributes.None, "handler");
+        foreach(var attrBuilder in handlerAttributes)
+            paramBuilder.SetCustomAttribute(attrBuilder);
+
         var handlerCtorIL = handlerCtor.GetILGenerator();
 
         handlerCtorIL.Emit(OpCodes.Ldarg_0);
         handlerCtorIL.Emit(OpCodes.Ldarg_1);
-        handlerCtorIL.Emit(OpCodes.Stfld, fields[(int)ProxyFields.Handler]);
+        handlerCtorIL.Emit(OpCodes.Stfld, fields[ProxyFields.Handler]);
+
+        var sourceType = !type.IsGenericTypeDefinition ? type : type.MakeGenericType(typeBuilder.GetGenericTypeDefinition().GetGenericArguments());
 
         handlerCtorIL.Emit(OpCodes.Ldarg_0);
-        handlerCtorIL.Emit(OpCodes.Ldarg_0);
-        handlerCtorIL.Emit(OpCodes.Call, GetTypeMethod);
-        handlerCtorIL.Emit(OpCodes.Callvirt, GetBaseTypeMethod);
+        handlerCtorIL.Emit(OpCodes.Ldtoken, sourceType);
+        handlerCtorIL.Emit(OpCodes.Call, GetTypeFromHandleMethod);
         handlerCtorIL.Emit(OpCodes.Call, GetMethodInfosMethod);
-        handlerCtorIL.Emit(OpCodes.Stfld, fields[(int)ProxyFields.Methods]);
+        handlerCtorIL.Emit(OpCodes.Stfld, fields[ProxyFields.Methods]);
 
         handlerCtorIL.Emit(OpCodes.Ret);
 
         return typeBuilder;
     }
 
-    public static TypeBuilder AddMethods(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields)
+    public static TypeBuilder AddSourceMethods(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields)
     {
-        var methods = ProxyDynamic.GetMethodInfos(type);
-        var handlerInvokeMethod = fields[(int)ProxyFields.Handler].FieldType.GetMethod(nameof(Action.Invoke))!;
+        var methods = type.IsGenericTypeDefinition ? ProxyDynamic.GetMethods(type) : ProxyDynamic.ResolveMethods(type);
+        var handlerInvokeMethod = fields[ProxyFields.Handler].FieldType.GetMethod(nameof(Action.Invoke))!;
 
         for (var i = 0; i < methods.Length; i++)
         {
@@ -61,7 +69,7 @@ internal static class TypeBuilderExtensions
 
             var methodBuilder = typeBuilder.DefineMethod(
                 method.Name,
-                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot,
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.ReuseSlot,
                 method.ReturnType,
                 parameterTypes
             );
@@ -78,7 +86,7 @@ internal static class TypeBuilderExtensions
 
             // method = _methodInfos[i];
             methodIL.Emit(OpCodes.Ldarg_0);
-            methodIL.Emit(OpCodes.Ldfld, fields[(int)ProxyFields.Methods]);
+            methodIL.Emit(OpCodes.Ldfld, fields[ProxyFields.Methods]);
             methodIL.Emit(OpCodes.Ldc_I4, i);
             methodIL.Emit(OpCodes.Ldelem_Ref);
 
@@ -102,9 +110,10 @@ internal static class TypeBuilderExtensions
 
             methodIL.Emit(OpCodes.Stloc_0);
 
-            // result = _handler(method, new object[2] { a, b });
+            // result = _handler(this, method, new object[2] { a, b });
             methodIL.Emit(OpCodes.Ldarg_0);
-            methodIL.Emit(OpCodes.Ldfld, fields[(int)ProxyFields.Handler]);
+            methodIL.Emit(OpCodes.Ldfld, fields[ProxyFields.Handler]);
+            methodIL.Emit(OpCodes.Ldarg_0);
             methodIL.Emit(OpCodes.Ldloc_0);
             methodIL.Emit(OpCodes.Ldc_I4, parameterTypes.Length);
             methodIL.Emit(OpCodes.Newarr, _objectType);
@@ -139,6 +148,33 @@ internal static class TypeBuilderExtensions
             }
             methodIL.Emit(OpCodes.Ret);
         }
+
+        return typeBuilder;
+    }
+
+    public static TypeBuilder AddProxyMethods(this TypeBuilder typeBuilder, FieldInfo[] fields)
+    {
+        var attrs = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.ReuseSlot;
+        var stateField = fields[ProxyFields.State];
+        
+        // getter
+        var getMethodDeclaration = _proxyStateProp.GetGetMethod()!;
+        var getMethod = typeBuilder.DefineMethod(getMethodDeclaration.Name, attrs, stateField.FieldType, Type.EmptyTypes);
+        var getMethodIL = getMethod.GetILGenerator();
+        getMethodIL.Emit(OpCodes.Ldarg_0);
+        getMethodIL.Emit(OpCodes.Ldfld, stateField);
+        getMethodIL.Emit(OpCodes.Ret);
+        //typeBuilder.DefineMethodOverride(getMethod, getMethodDeclaration);
+
+        // setter
+        var setMethodDeclaration = _proxyStateProp.GetSetMethod()!;
+        var setMethod = typeBuilder.DefineMethod(setMethodDeclaration.Name, attrs, null, [stateField.FieldType]);
+        var setMethodIL = setMethod.GetILGenerator();
+        setMethodIL.Emit(OpCodes.Ldarg_0);
+        setMethodIL.Emit(OpCodes.Ldarg_1);
+        setMethodIL.Emit(OpCodes.Stfld, stateField);
+        setMethodIL.Emit(OpCodes.Ret);
+        //typeBuilder.DefineMethodOverride(setMethod, setMethodDeclaration);
 
         return typeBuilder;
     }
@@ -194,13 +230,15 @@ internal static class TypeBuilderExtensions
 
     public static TypeBuilder AddInterfaces(this TypeBuilder typeBuilder, Type type)
     {
-        ProxyDynamic.EnsureTypeIsVisible(type);
+        type.EnsureTypeIsVisible();
 
         if (type.IsInterface)
             typeBuilder.AddInterfaceImplementation(type);
 
         foreach (var x in type.GetInterfaces())
-            typeBuilder.AddInterfaceImplementation(ProxyDynamic.EnsureTypeIsVisible(x));
+            typeBuilder.AddInterfaceImplementation(x.EnsureTypeIsVisible());
+
+        typeBuilder.AddInterfaceImplementation(typeof(IProxy));
 
         return typeBuilder;
     }
@@ -218,13 +256,11 @@ internal static class TypeBuilderExtensions
     //}
 
     private static readonly Type[] CtorArgs = [typeof(ProxyHandler)];
-    private static readonly MethodInfo GetTypeMethod = new Func<Type>(string.Empty.GetType).Method;
-    private static readonly MethodInfo GetTypeFromHandleMethod = new Func<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle).Method;
-    private static readonly MethodInfo GetMethodInfosMethod = new Func<Type, MethodInfo[]>(ProxyDynamic.GetMethodInfos).Method;
-    private static readonly MethodInfo MakeGenericMethod = typeof(MethodInfo).GetMethod(nameof(MethodInfo.MakeGenericMethod), BindingFlags.Public | BindingFlags.Instance)!;
-    private static readonly MethodInfo GetBaseTypeMethod = typeof(Type).GetProperty(nameof(Type.BaseType), BindingFlags.Public | BindingFlags.Instance)!.GetGetMethod(true)!;
-    private static readonly MethodInfo GetIsValueTypeMethod = typeof(Type).GetProperty(nameof(Type.IsValueType), BindingFlags.Public | BindingFlags.Instance)!.GetGetMethod(true)!;
-
+    private static readonly MethodInfo GetTypeFromHandleMethod = new Func<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle!).Method;
+    private static readonly MethodInfo GetMethodInfosMethod = new Func<Type, MethodInfo[]>(ProxyDynamic.ResolveMethods).Method;
+    private static readonly MethodInfo MakeGenericMethod = new Func<Type[], MethodInfo>(GetMethodInfosMethod.MakeGenericMethod).Method.GetRuntimeBaseDefinition()!;
+    
+    private static readonly PropertyInfo _proxyStateProp = typeof(IProxy).GetProperty(nameof(IProxy.CustomProxyStateDefinition))!;
     private static readonly Type _voidType = typeof(void);
     private static readonly Type _objectType = typeof(object);
     private static readonly Type _typeType = typeof(Type);

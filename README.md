@@ -1,5 +1,5 @@
 # DispatchProxyAdvanced [![NuGet version](https://badge.fury.io/nu/DispatchProxyAdvanced.svg?)](http://badge.fury.io/nu/DispatchProxyAdvanced)
-Extended version of DispatchProxy with Class proxying
+Extended version of DispatchProxy with Class proxying.
 
 
 ## Example 1: Class proxing with target
@@ -13,12 +13,12 @@ class ExampleClass
 ```C#
 using DispatchProxyAdvanced;
 
-var instanceTarget = new ExampleClass { MyProp = 111 };
+var someInstance = new ExampleClass { MyProp = 111 };
 
-var proxy1 = ProxyFactory.Create<ExampleClass>((method, args) =>
+var proxy1 = ProxyFactory.CreateSourced(someInstance, (source, method, args) =>
 {
     Console.WriteLine($"Executing method: {method.Name}, with args: {string.Join(", ", args)}");
-    return method.Invoke(instanceTarget, args);
+    return method.Invoke(source, args);
 });
 
 Console.WriteLine($"Property value: {proxy1.MyProp}");

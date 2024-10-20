@@ -9,7 +9,9 @@ public class AbstractTests
         
         var proxy = ProxyFactory.Create<ATest>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(ATest).GetProperty(nameof(ATest.Prop1))!.GetGetMethod()));
+            Assert.That(method, 
+                Is.EqualTo(typeof(ATest).GetProperty(nameof(ATest.Prop1))!.GetGetMethod()));
+
             return num;
         });
 
@@ -25,8 +27,13 @@ public class AbstractTests
         var proxy = ProxyFactory.Create<ATest>((method, args) =>
         {
             run = true;
-            Assert.That(method, Is.EqualTo(typeof(ATest).GetMethod(nameof(ATest.Method0))));
-            Assert.That(args.Length, Is.EqualTo(0));
+
+            Assert.That(method, 
+                Is.EqualTo(typeof(ATest).GetMethod(nameof(ATest.Method0))));
+            
+            Assert.That(args.Length, 
+                Is.EqualTo(0));
+
             return null;
         });
 
@@ -42,11 +49,14 @@ public class AbstractTests
 
         var proxy = ProxyFactory.Create<ATest>((method, args) =>
         {
-            Assert.That(method, Is.EqualTo(typeof(ATest).GetMethod(nameof(ATest.Method1))));
+            Assert.That(method, 
+                Is.EqualTo(typeof(ATest).GetMethod(nameof(ATest.Method1))));
+
             return args.FirstOrDefault();
         });
 
-        Assert.That(proxy.Method1(num), Is.EqualTo(num));
+        Assert.That(proxy.Method1(num), 
+            Is.EqualTo(num));
     }
 
 }
