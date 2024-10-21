@@ -21,7 +21,7 @@ public static class ProxyFactory
         if (sourceType.IsSealed)
             throw new ArgumentException($"'{sourceType}' is sealed.");
 
-        return ProxyDynamic.DefineType(sourceType, handlerParameterAttributes);
+        return ProxyDynamic.CreateType(sourceType, handlerParameterAttributes);
     }
 
 

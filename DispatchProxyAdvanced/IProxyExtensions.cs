@@ -11,31 +11,42 @@ public static class IProxyExtensions
         return proxy.GetType().FindProxySourceType()!;
     }
 
-    /// <summary>Represents a thread-safe set (once) state operation.</summary>
-    public static object? GetOrAddState(this IProxy proxy, Func<object?> add)
+    public static T? GetState<T>(this IProxy proxy)
     {
-        var state = proxy.CustomProxyStateDefinition;
+        if (proxy.CustomProxyStateDefinition != null)
+            return (T?)proxy.CustomProxyStateDefinition;
 
-        if (state == null)
+        return default;
+    }
+
+    public static void SetState<T>(this IProxy proxy, T? value)
+    {
+        proxy.CustomProxyStateDefinition = value;
+    }
+
+    /// <summary>Represents a thread-safe set (once) state operation.</summary>
+    public static T? GetOrAddState<T>(this IProxy proxy, Func<T?> add)
+    {
+        if (proxy.CustomProxyStateDefinition != null)
+            return (T?)proxy.CustomProxyStateDefinition;
+
+        lock (proxy)
         {
-            lock (proxy)
-            {
-                if (state == null)
-                {
-                    proxy.CustomProxyStateDefinition = state = add();
-                }
-            }
-        }
+            if (proxy.CustomProxyStateDefinition != null)
+                return (T?)proxy.CustomProxyStateDefinition;
 
-        return state;
+            var state = add();
+            proxy.CustomProxyStateDefinition = state;
+            return state;
+        }
     }
 
     /// <summary>Represents a thread-safe update state operation.</summary>
-    public static void GetAndUpdateState(this IProxy proxy, Func<object?, object?> getAndUpdate)
+    public static void GetAndUpdateState<T>(this IProxy proxy, Func<T?, T?> getAndUpdate)
     {
         lock (proxy)
         {
-            proxy.CustomProxyStateDefinition = getAndUpdate(proxy.CustomProxyStateDefinition);
+            proxy.CustomProxyStateDefinition = getAndUpdate(proxy.GetState<T>());
         }
     }
 }

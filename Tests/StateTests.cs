@@ -42,7 +42,7 @@ public class StateTests
 
         var proxy = ProxyFactory.Create<ITest>((pi, method, args) =>
         {
-            Assert.That(pi.CustomProxyStateDefinition,
+            Assert.That(pi.GetState<int?>(),
                 Is.Null);
 
             Assert.That(pi.GetOrAddState(() => num),
@@ -74,14 +74,14 @@ public class StateTests
 
         var proxy = ProxyFactory.Create<ITest>((pi, method, args) =>
         {
-            pi.CustomProxyStateDefinition = 0;
+            pi.SetState(0);
             var count = 1000;
 
             Task.WaitAll(Enumerable.Range(0, count)
-                .Select(i => Task.Run(() => pi.GetAndUpdateState(state => (int)state! + 1)))
+                .Select(i => Task.Run(() => pi.GetAndUpdateState<int>(state => state + 1)))
                 .ToArray());
 
-            Assert.That(pi.CustomProxyStateDefinition,
+            Assert.That(pi.GetState<int>(),
                 Is.EqualTo(count));
 
             return method.Invoke(source, args);

@@ -6,17 +6,17 @@
 		<Nullable>enable</Nullable>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\DispatchProxyAdvanced.snk</AssemblyOriginatorKeyFile>
-		<AssemblyVersion>2.0.0</AssemblyVersion>
-		<FileVersion>2.0.0</FileVersion>
-		<Version>2.0.0</Version>
+		<AssemblyVersion>2.0.1</AssemblyVersion>
+		<FileVersion>2.0.1</FileVersion>
+		<Version>2.0.1</Version>
 		<Company></Company>
 		<Authors>Leonid Salavatov</Authors>
 		<Copyright>Leonid Salavatov 2024</Copyright>
 		<PackageId>DispatchProxyAdvanced</PackageId>
 		<Product>DispatchProxyAdvanced</Product>
 		<Title>DispatchProxyAdvanced</Title>
-		<Description>Extended version of DispatchProxy with Class proxying</Description>
-		<PackageTags>dispatchproxy dispatch-proxy proxy-factory proxy-object proxy-class proxy-interface proxy-handler</PackageTags>
+		<Description>Extended version of DispatchProxy with Class proxying and custom states</Description>
+		<PackageTags>dispatchproxy dispatch-proxy proxy-factory proxy-object proxy-class proxy-interface proxy-handler proxy-state custom-state</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/mustaddon/DispatchProxyAdvanced</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mustaddon/DispatchProxyAdvanced</RepositoryUrl>

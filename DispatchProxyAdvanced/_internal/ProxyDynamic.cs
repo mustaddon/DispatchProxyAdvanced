@@ -8,9 +8,25 @@ namespace DispatchProxyAdvanced._internal;
 
 public static class ProxyDynamic
 {
-    internal static Type DefineType(Type sourceTyoe, params CustomAttributeBuilder[] handlerAttributes)
+    internal static Type CreateType(Type sourceType, params CustomAttributeBuilder[] handlerAttributes)
     {
-        return _definedTypes.GetOrAdd(sourceTyoe, type => new Lazy<Type>(() => Module
+        if (handlerAttributes.Length > 0)
+        {
+            return DefineType(sourceType, handlerAttributes);
+        }
+
+        if (sourceType.IsGenericType && !sourceType.IsGenericTypeDefinition)
+        {
+            return ResolveType(sourceType.GetGenericTypeDefinition())
+                .MakeGenericType(sourceType.GenericTypeArguments);
+        }
+
+        return ResolveType(sourceType);
+    }
+
+    static Type DefineType(Type type, params CustomAttributeBuilder[] handlerAttributes)
+    {
+        return Module
             .DefineType($"generatedProxy_{Guid.NewGuid():N}", TypeAttributes.Public, type.IsInterface ? null : type)
             .AddGenericParameters(type)
             .AddInterfaces(type)
@@ -18,8 +34,12 @@ public static class ProxyDynamic
             .AddConstructor(type, fields, handlerAttributes)
             .AddSourceMethods(type, fields)
             .AddProxyMethods(fields)
-            .CreateTypeInfo()!)
-        ).Value;
+            .CreateTypeInfo()!;
+    }
+
+    static Type ResolveType(Type sourceType)
+    {
+        return _definedTypes.GetOrAdd(sourceType, type => new Lazy<Type>(() => DefineType(type))).Value;
     }
 
     public static MethodInfo[] ResolveMethods(Type type)
