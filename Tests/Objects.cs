@@ -13,6 +13,7 @@ interface ITest<T> : ITest
     public T Prop2 { get; set; }
     public T Method2(T a);
     public TA Method3<TA, TB>(TA a, TB b);
+    public bool Method2(bool a);
 }
 
 class TestClass : ITest
@@ -41,6 +42,9 @@ class TestClass<T> : TestClass, ITest<T>
     public virtual T Prop2 { get; set; }
 
     public virtual T Method2(T a) => a;
+
+    public virtual bool Method2(bool a) => a;
+
     public virtual TA Method3<TA, TB>(TA a, TB b) => a;
 }
 
@@ -49,4 +53,10 @@ abstract class ATest : ITest
     public abstract int Prop1 { get; set; }
     public abstract void Method0();
     public abstract int Method1(int a);
+}
+
+[AttributeUsage(AttributeTargets.All)]
+class SomeAttribute(string value) : Attribute
+{
+    public string Value => value;
 }

@@ -24,11 +24,13 @@ public class InterfaceTests
         var num = Utils.Random.Next();
         var source = new TestClass<string>(num, num.ToString());
 
-        var proxy = ProxyFactory.Create<ITest<string>>((method, args) =>
+        var proxy = ProxyFactory.Create<ITest<string>>((proxy, method, args) =>
         {
             Assert.That(method, Is.EqualTo(typeof(ITest<string>).GetProperty(nameof(ITest<string>.Prop2))!.GetGetMethod()));
             return method.Invoke(source, args);
         });
+
+        var aa = proxy.Prop2;
 
         Assert.That(proxy.Prop2, 
             Is.EqualTo(source.Prop2));
@@ -61,7 +63,7 @@ public class InterfaceTests
         var proxy = ProxyFactory.Create<ITest<int>>((method, args) =>
         {
             Assert.That(method, 
-                Is.EqualTo(typeof(ITest<int>).GetMethod(nameof(ITest<int>.Method2))));
+                Is.EqualTo(typeof(ITest<int>).GetMethod(nameof(ITest<int>.Method2),[typeof(int)])));
 
             return method.Invoke(source, args);
         });

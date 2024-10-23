@@ -54,14 +54,18 @@ public static class ProxyDynamic
         var methods = type.GetMethods(flags).AsEnumerable();
 
         if (type.IsInterface)
+        {
             methods = methods
                 .Concat(type.GetInterfaces().SelectMany(x => x.GetMethods(flags)))
                 .Concat(typeof(object).GetMethods(flags));
+        }
 
         return [.. methods
             .Where(x => x.IsVirtual && !x.IsFinal)
             .Select(x => x.GetBaseDefinition())
-            .Distinct()];
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.GetGenericArguments().Length)
+            .ThenBy(x => x.GetParameters().Length)];
     }
 
     internal static Type EnsureTypeIsVisible(this Type type)

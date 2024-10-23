@@ -1,5 +1,6 @@
 ﻿using DispatchProxyAdvanced._internal;
 using System;
+using System.Reflection;
 
 namespace DispatchProxyAdvanced;
 
@@ -22,5 +23,13 @@ public static class TypeExtensions
             return null;
 
         return type.FindProxySourceType()!;
+    }
+
+    public static ParameterInfo? GetProxyHandlerParameter(this Type type)
+    {
+        if (!type.IsProxyType())
+            return null;
+
+        return type.GetConstructors()[0].GetParameters()[0];
     }
 }

@@ -176,7 +176,7 @@ public class ClassTests
         var proxy = ProxyFactory.Create<TestClass<int>>((method, args) =>
         {
             Assert.That(method, 
-                Is.EqualTo(typeof(TestClass<int>).GetMethod(nameof(TestClass<int>.Method2))));
+                Is.EqualTo(typeof(TestClass<int>).GetMethod(nameof(TestClass<int>.Method2), [typeof(int)])));
 
             Assert.That(args.Length, 
                 Is.EqualTo(1));

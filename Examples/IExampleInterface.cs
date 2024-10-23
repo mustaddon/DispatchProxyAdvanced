@@ -12,10 +12,14 @@ interface IExampleInterfaceA
     public int MyMethodA(int a, int b);
 }
 
-interface IExampleInterfaceB
+interface IExampleInterfaceB : IExampleInterfaceC
 {
     public int MyPropB { get; set; }
     public int MyMethodB(int a, int b);
+}
+
+interface IExampleInterfaceC {
+    public int MyPropC { get; set; }
 }
 
 
