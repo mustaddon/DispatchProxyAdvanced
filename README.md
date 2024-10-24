@@ -68,16 +68,16 @@ var proxy4 = ProxyFactory.CreateSourced(someInstance, (source, proxy, method, ar
     return method.Invoke(source, args);
 });
 
-Console.WriteLine($"Start proxy state: {((IProxy)proxy4).CustomProxyStateDefinition ?? "null"}");
+Console.WriteLine($"Start proxy state: '{((IProxy)proxy4).CustomProxyStateDefinition}'");
 
 proxy4.MyMethod(10, 100);
 
-Console.WriteLine($"Current proxy state: {((IProxy)proxy4).CustomProxyStateDefinition}");
+Console.WriteLine($"Current proxy state: '{((IProxy)proxy4).CustomProxyStateDefinition}'");
 
 // Console output: 
-// Start proxy state: null
+// Start proxy state: ''
 // Executing method: MyMethod
-// Current proxy state: ExampleStateValue
+// Current proxy state: 'ExampleStateValue'
 ```
 
 [Program.cs](https://github.com/mustaddon/DispatchProxyAdvanced/tree/master/Examples/Program.cs)

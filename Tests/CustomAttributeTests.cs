@@ -9,7 +9,7 @@ public class CustomAttributeTests
 {
 #if NET5_0_OR_GREATER
     [Test]
-    public void TestDeclaringType_ref()
+    public void TestAttrs_ref()
     {
         var attrs = Enumerable.Range(0, 2).Select(i => $"attr{i}_{Utils.Random.Next()}").ToArray();
 
@@ -24,13 +24,10 @@ public class CustomAttributeTests
             return m.Invoke(source, a);
         });
 
-        var proxy2 = (ITest<string>)type.CreateProxyInstance((p, m, a) =>
+        dynamic proxy2 = type.CreateProxyInstance((p, m, a) =>
         {
             return m.Invoke(source, a);
         });
-
-        var p1 = proxy1.Prop2;
-        var p2 = proxy2.Prop2;
 
         var param = type.GetProxyHandlerParameter();
 

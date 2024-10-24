@@ -241,6 +241,21 @@ public class ClassTests
     }
 
 
+
+    [Test]
+    public void TestMethod4_internal()
+    {
+        var num = Utils.Random.Next();
+
+        var proxy = ProxyFactory.Create<TestClass<int>>((method, args) =>
+        {
+            return num;
+        });
+
+        Assert.That(proxy.Method4(Utils.Random.Next()), Is.EqualTo(num));
+    }
+
+
     [Test]
     public void TestEvent1_add_rise_remove()
     {

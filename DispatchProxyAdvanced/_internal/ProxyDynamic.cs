@@ -11,20 +11,24 @@ public static class ProxyDynamic
     internal static Type CreateType(Type sourceType, params CustomAttributeBuilder[] handlerAttributes)
     {
         if (handlerAttributes.Length > 0)
-        {
             return DefineType(sourceType, handlerAttributes);
-        }
-
-        if (sourceType.IsGenericType && !sourceType.IsGenericTypeDefinition)
-        {
-            return ResolveType(sourceType.GetGenericTypeDefinition())
-                .MakeGenericType(sourceType.GenericTypeArguments);
-        }
 
         return ResolveType(sourceType);
     }
 
-    static Type DefineType(Type type, params CustomAttributeBuilder[] handlerAttributes)
+    static Type ResolveType(Type sourceType)
+    {
+        return _definedTypes.GetOrAdd(sourceType, static t => new Lazy<Type>(() =>
+        {
+            if (t.IsGenericType && !t.IsGenericTypeDefinition)
+                return ResolveType(t.GetGenericTypeDefinition())
+                    .MakeGenericType(t.GenericTypeArguments);
+
+            return DefineType(t);
+        })).Value;
+    }
+
+    static TypeInfo DefineType(Type type, params CustomAttributeBuilder[] handlerAttributes)
     {
         return Module
             .DefineType($"generatedProxy_{Guid.NewGuid():N}", TypeAttributes.Public, type.IsInterface ? null : type)
@@ -32,14 +36,11 @@ public static class ProxyDynamic
             .AddInterfaces(type)
             .AddFields(out var fields)
             .AddConstructor(type, fields, handlerAttributes)
-            .AddSourceMethods(type, fields)
-            .AddProxyMethods(fields)
+            .AddProperties(type, out var propertyBinder)
+            .AddEvents(type, out var eventBinder)
+            .AddMethods(type, fields, propertyBinder, eventBinder)
+            .AddProxyAddons(fields)
             .CreateTypeInfo()!;
-    }
-
-    static Type ResolveType(Type sourceType)
-    {
-        return _definedTypes.GetOrAdd(sourceType, type => new Lazy<Type>(() => DefineType(type))).Value;
     }
 
     public static MethodInfo[] ResolveMethods(Type type)
@@ -49,19 +50,15 @@ public static class ProxyDynamic
 
     internal static MethodInfo[] GetMethods(Type type)
     {
-        const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
-
-        var methods = type.GetMethods(flags).AsEnumerable();
+        var methods = type.GetRuntimeMethods();
 
         if (type.IsInterface)
-        {
             methods = methods
-                .Concat(type.GetInterfaces().SelectMany(x => x.GetMethods(flags)))
-                .Concat(typeof(object).GetMethods(flags));
-        }
+                .Concat(type.GetInterfaces().SelectMany(x => x.GetRuntimeMethods()))
+                .Concat(typeof(object).GetRuntimeMethods());
 
         return [.. methods
-            .Where(x => x.IsVirtual && !x.IsFinal)
+            .Where(x => x.IsVirtual && !x.IsFinal && (x.IsPublic || x.IsAssembly))
             .Select(x => x.GetBaseDefinition())
             .OrderBy(x => x.Name)
             .ThenBy(x => x.GetGenericArguments().Length)

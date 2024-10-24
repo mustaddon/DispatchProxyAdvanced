@@ -26,4 +26,8 @@
     <ProjectReference Include="..\DispatchProxyAdvanced\DispatchProxyAdvanced.csproj" />
   </ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+	</ItemGroup>
+
 </Project>
