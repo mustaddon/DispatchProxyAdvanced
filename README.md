@@ -6,8 +6,8 @@ Extended version of DispatchProxy with Class proxying and custom states.
 ```C#
 interface IExampleInterface
 {
-    public int MyProp { get; set; }
-    public int MyMethod(int a, int b);
+    int MyProp { get; set; }
+    int MyMethod(int a, int b);
 }
 ```
 
