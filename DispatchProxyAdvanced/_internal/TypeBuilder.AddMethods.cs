@@ -6,7 +6,7 @@ namespace DispatchProxyAdvanced._internal;
 
 internal static partial class TypeBuilderExtensions
 {
-    public static TypeBuilder AddMethods(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields, Action<MethodInfo, MethodBuilder> tryBindToProperty, Action<MethodInfo, MethodBuilder> tryBindToEvent)
+    public static TypeBuilder AddMethods(this TypeBuilder typeBuilder, Type type, FieldInfo[] fields, Action<MethodInfo, MethodBuilder>? tryBindToProperty, Action<MethodInfo, MethodBuilder>? tryBindToEvent)
     {
         var methods = type.IsGenericTypeDefinition ? ProxyDynamic.GetMethods(type) : ProxyDynamic.ResolveMethods(type);
         var handlerInvokeMethod = fields[ProxyFields.Handler].FieldType.GetMethod(nameof(Action.Invoke))!;
@@ -26,8 +26,8 @@ internal static partial class TypeBuilderExtensions
                 parameterTypes
             );
 
-            tryBindToProperty(method, methodBuilder);
-            tryBindToEvent(method, methodBuilder);
+            tryBindToProperty?.Invoke(method, methodBuilder);
+            tryBindToEvent?.Invoke(method, methodBuilder);
 
             Type[] genericArguments = [];
 

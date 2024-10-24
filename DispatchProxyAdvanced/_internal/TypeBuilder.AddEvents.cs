@@ -7,13 +7,12 @@ namespace DispatchProxyAdvanced._internal;
 
 internal static partial class TypeBuilderExtensions
 {
-    public static TypeBuilder AddEvents(this TypeBuilder typeBuilder, Type type, out Action<MethodInfo, MethodBuilder> binder)
+    public static TypeBuilder AddEvents(this TypeBuilder typeBuilder, Type type, out Action<MethodInfo, MethodBuilder>? binder)
     {
+        binder = null;
+
         if (!type.IsInterface)
-        {
-            binder = (mi, mb) => { };
             return typeBuilder;
-        }
 
         var map = new Dictionary<MethodInfo, Action<MethodBuilder>>();
 
@@ -23,9 +22,6 @@ internal static partial class TypeBuilderExtensions
 
         foreach (var ei in events)
         {
-            if (ei.AddMethod == null && ei.RemoveMethod == null && ei.RaiseMethod == null)
-                continue;
-
             var builder = typeBuilder.DefineEvent(ei.Name, ei.Attributes, ei.EventHandlerType!);
 
             if (ei.AddMethod != null)
@@ -36,11 +32,12 @@ internal static partial class TypeBuilderExtensions
                 map[ei.RaiseMethod.GetBaseDefinition()] = builder.SetRaiseMethod;
         }
 
-        binder = (methodInfo, methodBuilder) =>
-        {
-            if (map.TryGetValue(methodInfo, out var setter))
-                setter(methodBuilder);
-        };
+        if (map.Count > 0)
+            binder = (methodInfo, methodBuilder) =>
+            {
+                if (map.TryGetValue(methodInfo, out var setter))
+                    setter(methodBuilder);
+            };
 
         return typeBuilder;
     }
