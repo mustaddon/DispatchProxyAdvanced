@@ -69,12 +69,9 @@ public static class ProxyDynamic
     {
         if (!type.IsVisible)
         {
-            var assemblyName = type.Assembly.GetName().Name!;
-
-            _ignoresAccessAssemblyNames.GetOrAdd(assemblyName, x =>
+            _ignoresAccessAssemblyNames.GetOrAdd(type.Assembly.GetName().Name!, static assemblyName =>
             {
-                var customAttributeBuilder = new CustomAttributeBuilder(_ignoresAccessChecksAttributeConstructor.Value, [assemblyName]);
-                Assembly.SetCustomAttribute(customAttributeBuilder);
+                Assembly.SetCustomAttribute(new CustomAttributeBuilder(_ignoresAccessChecksAttributeCtor.Value, [assemblyName]));
                 return true;
             });
         }
@@ -94,5 +91,5 @@ public static class ProxyDynamic
 
     private static readonly ConcurrentDictionary<string, bool> _ignoresAccessAssemblyNames = new();
 
-    private static readonly Lazy<ConstructorInfo> _ignoresAccessChecksAttributeConstructor = new(() => IgnoreAccessChecksToAttributeBuilder.AddToModule(Module));
+    private static readonly Lazy<ConstructorInfo> _ignoresAccessChecksAttributeCtor = new(() => IgnoreAccessChecksToAttributeBuilder.AddToModule(Module));
 }
