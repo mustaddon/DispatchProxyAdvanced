@@ -8,7 +8,7 @@ public static class IProxyExtensions
 {
     public static Type GetDeclaringType(this IProxy proxy)
     {
-        return proxy.GetType().FindProxySourceType()!;
+        return proxy.GetType().GetProxySourceType();
     }
 
     public static T? GetState<T>(this IProxy proxy)

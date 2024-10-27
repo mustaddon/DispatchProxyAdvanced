@@ -22,7 +22,7 @@ public static class TypeExtensions
         if (!type.IsProxyType())
             return null;
 
-        return type.FindProxySourceType()!;
+        return type.GetProxySourceType();
     }
 
     public static ParameterInfo? GetProxyHandlerParameter(this Type type)
