@@ -1,4 +1,4 @@
-# DispatchProxyAdvanced [![NuGet version](https://badge.fury.io/nu/DispatchProxyAdvanced.svg?)](http://badge.fury.io/nu/DispatchProxyAdvanced)
+# DispatchProxyAdvanced [![NuGet version](https://badge.fury.io/nu/DispatchProxyAdvanced.svg?208)](http://badge.fury.io/nu/DispatchProxyAdvanced)
 Extended version of DispatchProxy with Class proxying and custom states.
 
 

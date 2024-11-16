@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\DispatchProxyAdvanced.snk</AssemblyOriginatorKeyFile>
-		<AssemblyVersion>2.0.7</AssemblyVersion>
-		<FileVersion>2.0.7</FileVersion>
-		<Version>2.0.7</Version>
+		<AssemblyVersion>2.0.8</AssemblyVersion>
+		<FileVersion>2.0.8</FileVersion>
+		<Version>2.0.8</Version>
 		<Company></Company>
 		<Authors>Leonid Salavatov</Authors>
 		<Copyright>Leonid Salavatov 2024</Copyright>
@@ -29,7 +29,6 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 
